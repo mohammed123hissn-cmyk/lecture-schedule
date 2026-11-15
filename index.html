@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>جدول المحاضرات</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@100;200;300;400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#1b2030;--surface:rgba(255,255,255,.06);--raise:rgba(255,255,255,.1);--line:rgba(255,255,255,.14);--line2:rgba(255,255,255,.28);--text:#f1f2f7;--muted:#a3a9bd;--accent:#d8d8e4;--live:#7dd3a8;--danger:#e57373;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg) linear-gradient(160deg,#2c3450 0%,#1e2436 55%,#181d2b 100%) fixed;min-height:100vh;color:var(--text);font-family:"IBM Plex Sans Arabic","Segoe UI",Tahoma,Arial,sans-serif;font-weight:300;line-height:1.7}
+.wrap{max-width:640px;margin:0 auto;padding:28px 18px 80px}
+h1{font-weight:200;font-size:2rem;letter-spacing:.01em;margin:0}
+.date{color:var(--muted);font-size:.9rem;margin:2px 0 22px}
+.next{border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:22px;background:var(--surface)}
+.next small{color:var(--muted);display:block;font-size:.78rem}
+.next b{font-weight:400;font-size:1.05rem}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:18px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:99px;min-height:42px;padding:0 18px;font:inherit;font-weight:300;cursor:pointer;transition:all .18s}
+.tab:hover{border-color:var(--line2);color:var(--text)}
+.tab:active{transform:scale(.95)}
+.tab.on{background:var(--text);color:#09090b;border-color:var(--text);font-weight:400}
+.tab i{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--live);margin-inline-start:6px}
+.group h3{font-weight:300;font-size:.85rem;color:var(--muted);margin:18px 0 8px;letter-spacing:.04em}
+.lec{display:flex;gap:16px;align-items:center;border:1px solid var(--line);background:var(--surface);border-radius:16px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:transform .18s,border-color .18s,background .18s;animation:in .3s ease both}
+.lec:hover{border-color:var(--line2);background:var(--raise);transform:translateY(-2px)}
+.lec:active{transform:scale(.985)}
+.lec.live{border-color:var(--live)}
+.lec.past{opacity:.45}
+.t{min-width:54px;text-align:center;font-variant-numeric:tabular-nums;font-weight:200;font-size:1.15rem;line-height:1.2}
+.t small{display:block;color:var(--muted);font-size:.75rem;font-weight:300}
+.info{flex:1;min-width:0}
+.info b{font-weight:400;display:block}
+.info span{color:var(--muted);font-size:.85rem}
+.badge{font-size:.72rem;color:var(--live);border:1px solid var(--live);border-radius:99px;padding:0 9px}
+.del{display:none;background:transparent;color:var(--danger);border:1px solid var(--danger);border-radius:99px;min-height:36px;padding:0 14px;font:inherit;font-size:.85rem;cursor:pointer}
+.lec.open .del{display:block}
+.lec.open .badge{display:none}
+.empty{text-align:center;color:var(--muted);padding:40px 10px;border:1px dashed var(--line);border-radius:16px}
+.fab{position:fixed;inset-inline-start:18px;bottom:calc(18px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;border:1px solid var(--line2);background:var(--text);color:#09090b;font-size:1.8rem;font-weight:200;cursor:pointer;box-shadow:0 8px 30px rgba(0,0,0,.6);transition:transform .2s}
+.fab:active{transform:scale(.9)}
+.fab.x{transform:rotate(45deg)}
+.sheet{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end;justify-content:center;z-index:5}
+.sheet.show{display:flex}
+.card{width:100%;max-width:640px;background:var(--surface);border:1px solid var(--line2);border-radius:22px 22px 0 0;padding:20px 18px calc(24px + env(safe-area-inset-bottom,0px));animation:up .25s ease}
+.card h2{font-weight:200;font-size:1.3rem;margin:0 0 14px}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.full{grid-column:1/-1}
+label{display:flex;flex-direction:column;gap:4px;color:var(--muted);font-size:.8rem}
+input,select{font:inherit;font-weight:300;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-height:46px;color-scheme:dark}
+input:focus,select:focus{outline:none;border-color:var(--accent)}
+.row{display:flex;gap:10px;margin-top:6px}
+.go{flex:1;min-height:48px;border:0;border-radius:12px;background:var(--text);color:#09090b;font:inherit;font-weight:400;cursor:pointer}
+.go:active{transform:scale(.97)}
+.no{min-height:48px;padding:0 18px;border:1px solid var(--line);border-radius:12px;background:transparent;color:var(--muted);font:inherit;cursor:pointer}
+.err{grid-column:1/-1;color:var(--danger);font-size:.82rem;min-height:1.2em}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>جدول المحاضرات</h1>
+  <p class="date" id="date"></p>
+  <div class="next" id="next"></div>
+  <div class="tabs" id="tabs"></div>
+  <div id="list"></div>
+</div>
+
+<button class="fab" id="fab" type="button" aria-label="إضافة محاضرة">+</button>
+
+<div class="sheet" id="sheet">
+  <div class="card">
+    <h2>محاضرة جديدة</h2>
+    <div class="form">
+      <label class="full">المادة<input id="subject" placeholder="مثال: برمجة 2"></label>
+      <label class="full">اليوم<select id="day"></select></label>
+      <label>من<input id="from" type="time" value="08:30"></label>
+      <label>إلى<input id="to" type="time" value="10:00"></label>
+      <label>القاعة<input id="room" placeholder="اختياري"></label>
+      <label>المدرّس<input id="doc" placeholder="اختياري"></label>
+      <div class="err" id="err" role="alert"></div>
+    </div>
+    <div class="row"><button class="go" id="save" type="button">حفظ</button><button class="no" id="cancel" type="button">إلغاء</button></div>
+  </div>
+</div>
+
+<script>
+var DAYS=["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس"],KEY="lectures_v1",list=[];
+try{list=JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){list=[]}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(list))}catch(e){}}
+function mins(t){var p=t.split(":");return +p[0]*60+ +p[1]}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+var $=function(i){return document.getElementById(i)};
+var todayIdx=new Date().getDay(),sel=(todayIdx>=0&&todayIdx<=4)?todayIdx:0;
+DAYS.forEach(function(d,i){var o=document.createElement("option");o.value=i;o.textContent=d;$("day").appendChild(o)});
+$("date").textContent=(DAYS[todayIdx]||"عطلة")+" · "+new Date().toLocaleDateString("ar-IQ");
+
+function tabs(){
+  var h="";
+  DAYS.forEach(function(d,i){h+='<button class="tab'+(i===sel?' on':'')+'" data-d="'+i+'">'+d+(i===todayIdx?'<i></i>':'')+'</button>'});
+  h+='<button class="tab'+(sel===-1?' on':'')+'" data-d="-1">الأسبوع</button>';
+  $("tabs").innerHTML=h;
+}
+function row(l){
+  var n=new Date(),c=n.getHours()*60+n.getMinutes(),isT=l.day===n.getDay();
+  var live=isT&&c>=mins(l.from)&&c<mins(l.to),past=isT&&c>=mins(l.to);
+  return '<div class="lec'+(live?' live':'')+(past?' past':'')+'" data-id="'+l.id+'"><div class="t">'+l.from+'<small>'+l.to+'</small></div><div class="info"><b>'+esc(l.subject)+'</b><span>'+esc(l.room||"")+(l.room&&l.doc?" · ":"")+esc(l.doc||"")+'</span></div>'+(live?'<span class="badge">جارية الآن</span>':'')+'<button class="del" data-del="'+l.id+'">حذف</button></div>';
+}
+function render(){
+  tabs();
+  var days=sel===-1?[0,1,2,3,4]:[sel],h="",any=false;
+  days.forEach(function(d){
+    var items=list.filter(function(l){return l.day===d}).sort(function(a,b){return mins(a.from)-mins(b.from)});
+    if(!items.length)return;
+    any=true;
+    h+='<div class="group">'+(sel===-1?'<h3>'+DAYS[d]+'</h3>':'')+items.map(row).join("")+'</div>';
+  });
+  $("list").innerHTML=any?h:'<div class="empty">ما كو محاضرات هذا اليوم<br>اضغط + لإضافة محاضرة</div>';
+  nextLec();
+}
+function nextLec(){
+  var n=new Date(),c=n.getHours()*60+n.getMinutes(),td=n.getDay(),best=null,bd=1e9;
+  list.forEach(function(l){
+    var diff=((l.day-td+7)%7)*1440+mins(l.from)-c;
+    if(diff<0)diff+=7*1440;
+    if(diff<bd){bd=diff;best=l}
+  });
+  if(!best){$("next").innerHTML="<small>المحاضرة القادمة</small><b>أضف أول محاضرة</b>";return}
+  var d=Math.floor(bd/1440),h=Math.floor(bd%1440/60),m=bd%60;
+  $("next").innerHTML="<small>المحاضرة القادمة · بعد "+(d?d+" يوم ":"")+(h?h+" ساعة ":"")+m+" دقيقة</small><b>"+esc(best.subject)+"</b> <span style='color:var(--muted)'>"+DAYS[best.day]+" "+best.from+"</span>";
+}
+$("tabs").onclick=function(e){var d=e.target.closest(".tab");if(d){sel=+d.dataset.d;render()}};
+$("list").onclick=function(e){
+  var del=e.target.closest("[data-del]");
+  if(del){list=list.filter(function(l){return String(l.id)!==del.dataset.del});persist();render();return}
+  var c=e.target.closest(".lec");
+  if(c){var was=c.classList.contains("open");document.querySelectorAll(".lec.open").forEach(function(x){x.classList.remove("open")});if(!was)c.classList.add("open")}
+};
+function openSheet(o){$("sheet").classList.toggle("show",o);$("fab").classList.toggle("x",o);if(o){$("day").value=sel===-1?0:sel;$("err").textContent="";setTimeout(function(){$("subject").focus()},50)}}
+$("fab").onclick=function(){openSheet(!$("sheet").classList.contains("show"))};
+$("cancel").onclick=function(){openSheet(false)};
+$("sheet").onclick=function(e){if(e.target===$("sheet"))openSheet(false)};
+$("save").onclick=function(){
+  var s=$("subject").value.trim(),f=$("from").value,t=$("to").value;
+  if(!s||!f||!t){$("err").textContent="اكتب اسم المادة والوقت";return}
+  if(mins(t)<=mins(f)){$("err").textContent="وقت النهاية لازم يكون بعد البداية";return}
+  list.push({id:Date.now(),subject:s,day:+$("day").value,from:f,to:t,room:$("room").value.trim(),doc:$("doc").value.trim()});
+  persist();sel=+$("day").value;$("subject").value="";$("room").value="";$("doc").value="";openSheet(false);render();
+};
+render();setInterval(render,60000);
+</script>
+</body>
+</html>
